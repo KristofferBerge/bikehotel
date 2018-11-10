@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:unlock="clr-namespace:BikeHotel.Unlock"
+             x:Class="BikeHotel.Unlock.UnlockPage">
+    <ContentPage.BindingContext>
+        <unlock:UnlockViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="{Binding SelectedPermit.PermitTypeName}"
+                   Style="{StaticResource H1}"
+                   VerticalOptions="Start"
+                   HorizontalOptions="CenterAndExpand" />
+            <Label Text="{Binding SelectedPermit.Location}"
+                   HorizontalOptions="CenterAndExpand"
+                   Style="{StaticResource H1}" />
+            <Button Text="Unlock"
+                    Style="{StaticResource UnlockButton}"
+                    Command="{Binding UnlockCommand}" />
+            <Button Text="Add Flic"
+                    Command="{Binding OpenSettingsCommand}" />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

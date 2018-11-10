@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:onboarding="clr-namespace:BikeHotel.Onboarding"
+             x:Class="BikeHotel.Onboarding.OnboardingPage">
+    <ContentPage.BindingContext>
+        <onboarding:OnboardingViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <Grid>
+            <StackLayout Margin="30">
+                <!--Phone number step-->
+                <StackLayout IsVisible="False">
+                    <Label Text="Enter your phone number to get started"
+                           Style="{StaticResource H1}"
+                           VerticalOptions="CenterAndExpand"
+                           HorizontalOptions="CenterAndExpand" />
+                    <Entry Text="{Binding PhoneNumber}"
+                           Keyboard="Numeric" />
+                    <Button Text="Continue"
+                            Command="{Binding RequestVerificatonCodeCommand}"
+                            IsEnabled="{Binding IsValidPhoneNumber}" />
+                    <Label Text="Please note that you need an active subscription to BaneNOR bike hotel to use this app. This app will only allow you to open the door. You will still need the official app to administer your account"
+                           VerticalOptions="CenterAndExpand"
+                           HorizontalOptions="CenterAndExpand" />
+                    <StackLayout.Triggers>
+                        <DataTrigger TargetType="StackLayout"
+                                     Binding="{Binding CurrentOnboardingStep}"
+                                     Value="PhoneNumber">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </StackLayout.Triggers>
+                </StackLayout>
+
+                <!--Verification code step-->
+                <StackLayout IsVisible="False">
+                    <Label Text="Enter your verification code from SMS"
+                           Style="{StaticResource H1}"
+                           VerticalOptions="CenterAndExpand"
+                           HorizontalOptions="CenterAndExpand" />
+                    <Label Text="{Binding PhoneNumber, StringFormat='We asked BaneNOR nicely to send you a verification code to {0}. Go back and try again if you did not receive it'}" />
+                    <Entry Text="{Binding VerificationCode}"
+                           Keyboard="Numeric" />
+                    <Button Text="Verify"
+                            Command="{Binding VerifyCodeCommand}"
+                            IsEnabled="{Binding IsValidVerificationCode}" />
+                    <Button Text="Go back"
+                            Command="{Binding PreviousStepCommand}" />
+                    <StackLayout.Triggers>
+                        <DataTrigger TargetType="StackLayout"
+                                     Binding="{Binding CurrentOnboardingStep}"
+                                     Value="VerificationCode">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </StackLayout.Triggers>
+                </StackLayout>
+
+                <StackLayout IsVisible="False">
+                    <Label Text="Select default location"
+                           Style="{StaticResource H1}" />
+                    <Picker ItemsSource="{Binding AvailablePermits}"
+                            SelectedItem="{Binding DefaultPermit}" />
+                    <Button Text="Make default location"
+                            Command="{Binding SelectDefaultPermitCommand}" />
+                    <StackLayout.Triggers>
+                        <DataTrigger TargetType="StackLayout"
+                                     Binding="{Binding CurrentOnboardingStep}"
+                                     Value="SelectPermit">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </StackLayout.Triggers>
+                </StackLayout>
+
+                <!--Done step-->
+                <StackLayout IsVisible="False">
+                    <Label Text="All done!"
+                           Style="{StaticResource H1}" />
+                    <Label Text="Let's get started" />
+                    <Button Text="Sweet!"
+                            Command="{Binding FinishOnboardingCommend}" />
+                    <StackLayout.Triggers>
+                        <DataTrigger TargetType="StackLayout"
+                                     Binding="{Binding CurrentOnboardingStep}"
+                                     Value="Done">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </StackLayout.Triggers>
+                </StackLayout>
+                <!--TODO: Choose bike hotel if several, error if none or show which if only one-->
+                <!--TODO: Oh no!-->
+            </StackLayout>
+            <StackLayout x:Name="LoadingOverlay"
+                         IsVisible="False"
+                         HorizontalOptions="FillAndExpand"
+                         VerticalOptions="FillAndExpand"
+                         BackgroundColor="White">
+                <ActivityIndicator IsRunning="True"
+                                   IsVisible="False"
+                                   x:Name="LoadingSpinner"
+                                   HorizontalOptions="CenterAndExpand"
+                                   VerticalOptions="CenterAndExpand" />
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
