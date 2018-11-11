@@ -8,7 +8,6 @@ namespace BikeHotel.Flic
     {
         void SetAppCredentialsFromSettings();
         bool GrabButton();
-        //TODO: Connect
         //TODO: Disconnect
         //TODO: Check connection
     }

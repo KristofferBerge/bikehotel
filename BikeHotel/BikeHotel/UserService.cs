@@ -26,6 +26,14 @@ namespace BikeHotel
             }
         }
 
+        public async Task ClearAllDataAndSignOutAsync()
+        {
+            await SetCachedAccessTokenAsync("");
+            await SetCachedRefreshTokenAsync("");
+            Preferences.Clear();
+            ((App)App.Current).SetMainPage();
+        }
+
         public string UserId
         {
             get

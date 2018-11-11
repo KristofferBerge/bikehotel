@@ -49,8 +49,8 @@ namespace BikeHotel.GiantLeap
             if (res.IsSuccessStatusCode)
             {
                 var resultString = await res.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<IList<Permit>>(resultString);
-                return result;
+                var result = JsonConvert.DeserializeObject<MyPermitsResult>(resultString);
+                return result.Permits;
             }
             return null;
         }

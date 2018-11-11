@@ -42,7 +42,7 @@ namespace BikeHotel.Unlock
 
         private void OpenSettings(object obj)
         {
-            ((App)App.Current).OpenSettings();
+            App.Current.MainPage.Navigation.PushAsync(new SettingsPage());
         }
 
         private bool canUnlock = true;

@@ -8,6 +8,8 @@
     </ContentPage.BindingContext>
     <ContentPage.Content>
         <StackLayout>
+            <Button Text="Settings"
+                    Command="{Binding OpenSettingsCommand}" />
             <Label Text="{Binding SelectedPermit.PermitTypeName}"
                    Style="{StaticResource H1}"
                    VerticalOptions="Start"
@@ -18,8 +20,6 @@
             <Button Text="Unlock"
                     Style="{StaticResource UnlockButton}"
                     Command="{Binding UnlockCommand}" />
-            <Button Text="Add Flic"
-                    Command="{Binding OpenSettingsCommand}" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

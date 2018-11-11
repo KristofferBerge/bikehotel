@@ -4,10 +4,13 @@
              x:Class="BikeHotel.Flic.FlicSetupPage">
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-            <Button Text="Add Flic" Clicked="AddFlicClicked" />
+            <Label Text="Pair a Flic button"
+                   VerticalOptions="CenterAndExpand"
+                   HorizontalOptions="CenterAndExpand"
+                   Style="{StaticResource H1}" />
+            <Label Text="When paired, the Flic bluetooth button can be pressd to open the door without opening the app. You will need the flic app installed on your phone as well to do this." />
+            <Button Text="Add Flic"
+                    Clicked="AddFlicClicked" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

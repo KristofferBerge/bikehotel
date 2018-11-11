@@ -20,7 +20,6 @@ namespace BikeHotel
         {
             SetupDependencies();
             InitializeComponent();
-            Preferences.Clear();
             SetMainPage();
 
         }
@@ -28,26 +27,22 @@ namespace BikeHotel
         public void SetMainPage()
         {
             if (DependencyService.Get<UserService>().IsUserConfigured)
-                MainPage = new UnlockPage();
+                MainPage = new NavigationPage(new UnlockPage());
             else
-                MainPage = new OnboardingPage();
+                MainPage = new NavigationPage(new OnboardingPage());
         }
 
         private void SetupDependencies()
         {
             DependencyService.Register<UserService>();
-#if DEBUG
             DependencyService.Register<GiantLeapApiService>();
-#else
-            DependencyService.Register<GiantLeapMockApiService>();
-#endif
+            //DependencyService.Register<GiantLeapMockApiService>();
         }
 
         protected override void OnStart()
         {
             AppCenter.Start("2454f05b-14ca-43fd-bff6-87f15b3129ac",
        typeof(Analytics), typeof(Crashes));
-            // Handle when your app starts
         }
 
         protected override void OnSleep()
@@ -58,11 +53,6 @@ namespace BikeHotel
         protected override void OnResume()
         {
             // Handle when your app resumes
-        }
-
-        internal void OpenSettings()
-        {
-            MainPage = new FlicSetupPage();
         }
     }
 }
