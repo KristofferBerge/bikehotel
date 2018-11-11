@@ -1,4 +1,6 @@
 ﻿using BikeHotel.GiantLeap;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,18 +24,22 @@ namespace BikeHotel.Unlock
                     var newToken = await ApiService.ExchangeRefreshTokenAsync(UserService.UserId, await UserService.GetCachedRefreshTokenAsync());
                     if (!string.IsNullOrEmpty(newToken))
                     {
-                        UserService.SetCachedAccessTokenAsync(newToken);
+                        await UserService.SetCachedAccessTokenAsync(newToken);
                         resultCode = await ApiService.UnlockAsync(UserService.DefaultPermitId, await UserService.GetCachedAccessTokenAsync());
                     }
                 }
                 if (resultCode != System.Net.HttpStatusCode.OK)
-                    //TODO: Sign user out
+                {
+                    Analytics.TrackEvent("Unlock failed", new Dictionary<string, string> { { "HttpErrorCode", resultCode.ToString() } });
+                    await UserService.ClearAllDataAndSignOutAsync();
                     return false;
+                }
                 return true;
 
             }
             catch (Exception e)
             {
+                Crashes.TrackError(e, new Dictionary<string, string> { { "Reason", "Unlock failed due to exception" } });
                 return false;
             }
         }

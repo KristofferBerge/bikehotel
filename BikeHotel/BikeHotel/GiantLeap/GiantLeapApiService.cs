@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using BikeHotel.GiantLeap.Models;
+using Microsoft.AppCenter.Analytics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xamarin.Forms.Internals;
@@ -15,12 +16,12 @@ namespace BikeHotel.GiantLeap
     public class GiantLeapApiService : IGiantLeapApiService
     {
 
-        private HttpClient Client = new HttpClient();
-
-        public GiantLeapApiService()
+        private HttpClient GetClientWithDefaultHeaders()
         {
-            Client.DefaultRequestHeaders.Add("X-PartnerId", "banenor");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Android/Cardboard(banenor-3.4.5)/1.3.7");
+            var c = new HttpClient();
+            c.DefaultRequestHeaders.Add("X-PartnerId", "banenor");
+            c.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Android/Cardboard(banenor-3.4.5)/1.3.7");
+            return c;
         }
 
         public async Task<string> ExchangeRefreshTokenAsync(string clientId, string refreshToken)
@@ -29,13 +30,14 @@ namespace BikeHotel.GiantLeap
             json["clientIdentifier"] = clientId;
             json["refreshToken"] = refreshToken;
             var content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var res = await Client.PostAsync(GiantLeapPaths.ReAuthUrl, content);
+            var res = await GetClientWithDefaultHeaders().PostAsync(GiantLeapPaths.ReAuthUrl, content);
             if (res.IsSuccessStatusCode)
             {
                 var resultString = await res.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<CodeVerificationResult>(resultString);
                 return result.AccessToken;
             }
+            Analytics.TrackEvent("Refresh token exchange failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() } });
             return null;
         }
 
@@ -44,14 +46,16 @@ namespace BikeHotel.GiantLeap
             var json = new JObject();
             json["phoneNumber"] = phoneNumber;
             var content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Token", accessToken);
-            var res = await Client.PostAsync(GiantLeapPaths.MyPermitsUrl, content);
+            var client = GetClientWithDefaultHeaders();
+            client.DefaultRequestHeaders.TryAddWithoutValidation("X-Token", accessToken);
+            var res = await client.PostAsync(GiantLeapPaths.MyPermitsUrl, content);
             if (res.IsSuccessStatusCode)
             {
                 var resultString = await res.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<MyPermitsResult>(resultString);
                 return result.Permits;
             }
+            Analytics.TrackEvent("Get my permits failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() } });
             return null;
         }
 
@@ -61,13 +65,14 @@ namespace BikeHotel.GiantLeap
             json["phoneNumber"] = phoneNumber;
             json["code"] = verificationCode;
             var content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var res = await Client.PostAsync(GiantLeapPaths.VerifyCodeUrl, content);
+            var res = await GetClientWithDefaultHeaders().PostAsync(GiantLeapPaths.VerifyCodeUrl, content);
             if (res.IsSuccessStatusCode)
             {
                 var resultString = await res.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<CodeVerificationResult>(resultString);
                 return result;
             }
+            Analytics.TrackEvent("Access token exchange failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() } });
             return null;
         }
 
@@ -76,9 +81,10 @@ namespace BikeHotel.GiantLeap
             var json = new JObject();
             json["phoneNumber"] = phoneNumber;
             var content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var res = await Client.PostAsync(GiantLeapPaths.RequestVerificationCodeUrl, content);
+            var res = await GetClientWithDefaultHeaders().PostAsync(GiantLeapPaths.RequestVerificationCodeUrl, content);
             if (res.IsSuccessStatusCode)
                 return true;
+            Analytics.TrackEvent("SMS code request failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() } });
             return false;
         }
 
@@ -89,8 +95,10 @@ namespace BikeHotel.GiantLeap
             json["permitId"] = permitId;
             json["formData"] = new JArray();
             var content = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Token", accessToken);
-            var res = await Client.PostAsync(GiantLeapPaths.UnlockUrl, content);
+            var client = GetClientWithDefaultHeaders();
+            client.DefaultRequestHeaders.Add("X-Token", accessToken);
+            var res = await client.PostAsync(GiantLeapPaths.UnlockUrl, content);
+            Analytics.TrackEvent("Unlock request result", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() }, { "SatusMessage", res.ReasonPhrase } });
             return res.StatusCode;
         }
     }
