@@ -53,6 +53,8 @@ namespace BikeHotel.GiantLeap
             {
                 var resultString = await res.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<MyPermitsResult>(resultString);
+                if (result.Permits.Count == 0)
+                    Analytics.TrackEvent("Get my permits failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() }, { "Result", resultString } });
                 return result.Permits;
             }
             Analytics.TrackEvent("Get my permits failed", new Dictionary<string, string> { { "StatusCode", res.StatusCode.ToString() } });

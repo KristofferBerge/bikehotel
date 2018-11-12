@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.Internals;
@@ -185,13 +186,25 @@ namespace BikeHotel.Onboarding
                 UserService.UserId = result.UserId;
 
                 // Load permits for next step
-                AvailablePermits = await ApiService.GetMyPermitsAsync(PhoneNumber, result.AccessToken);
-                UserService.Permits = AvailablePermits;
-                DefaultPermit = AvailablePermits.FirstOrDefault();
+                await FetchPermitsAsync();
                 CurrentOnboardingStep = OnboardingStep.SelectPermit;
             }
             // TODO: Add error handling
             IsLoading = false;
+        }
+
+        private async Task FetchPermitsAsync() {
+            // Load permits for next step
+            AvailablePermits = await ApiService.GetMyPermitsAsync(PhoneNumber, await UserService.GetCachedAccessTokenAsync());
+            if (AvailablePermits == null)
+            {
+                var acceptDefeat = await((App)App.Current).MainPage.DisplayAlert("No subscriptions found", "You have no subscriptions", "Okay :(", "Retry");
+                if (acceptDefeat)
+                    return;
+                await FetchPermitsAsync();
+            }
+            UserService.Permits = AvailablePermits;
+            DefaultPermit = AvailablePermits.FirstOrDefault();
         }
 
         private async void RequestVerificationCode(object obj)
